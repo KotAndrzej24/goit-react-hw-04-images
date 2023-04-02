@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Button from './Button/Button';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
@@ -8,29 +8,25 @@ import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import axios from 'axios';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-export class App extends Component {
-  state = {
-    photos: [],
-    value: '',
-    prevValue: '',
-    isLoading: false,
-    page: 1,
-    showModal: false,
-    selectedImage: null,
-  };
+export function App() {
+  const [photos, setPhotos] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, isSelectedImage] = useState(null);
+  const [value, setValue] = useState('');
 
-  async componentDidUpdate(prevValue, prevState) {
-    const { value, page } = this.state;
-    if (value !== prevState.value || page !== prevState.page) {
-      await this.fetchImages();
+  useEffect(() => {
+    if (value === '') {
+      setPhotos([]);
+    } else {
+      fetchImages(value);
     }
-  }
+  }, [value, page]);
 
-  fetchImages = async () => {
-    this.setState({
-      isLoading: true,
-    });
-    const { value, page } = this.state;
+  const fetchImages = async () => {
+    setLoading(true);
+
     const KEY = '33147490-9fc73efc70912b9906c0b3bde';
     const BASE = 'https://pixabay.com/api/';
     const FILTER = 'image_type=photo&orientation=horizontal&per_page=12';
@@ -40,60 +36,50 @@ export class App extends Component {
         `${BASE}?q=${value}&page=${page}&key=${KEY}&${FILTER}`
       );
       if (response.data.hits.length > 0) {
-        this.setState(prevState => ({
-          photos: [...prevState.photos, ...response.data.hits],
-        }));
+        setPhotos([...photos, ...response.data.hits]);
       } else if (response.data.hits.length === 0) {
         Notify.info('Sorry, there are no more matches.');
       } else {
         Notify.failure("Sorry, we couldn't find any matches.");
       }
     } catch (error) {
-      this.setState({ error });
-      console.log(error);
+      console.log('Nastąpił błąd w :', error);
     } finally {
-      this.setState({ isLoading: false });
+      setLoading(false);
     }
   };
 
-  onSubmit = query => {
-    if (query !== this.state.prevValue) {
-      this.setState({ value: query, photos: [], page: 1, prevQuery: query });
-    }
+  const onSubmit = query => {
+    setValue(query);
+    setPhotos([]);
+    setPage(1);
   };
 
-  onImgClick = image => {
-    this.setState({ showModal: true, selectedImage: image });
+  const onImgClick = image => {
+    setShowModal(true);
+    isSelectedImage(image);
   };
 
-  closeHandler = () => {
-    this.setState({ showModal: false, selectedImage: null });
+  const closeHandler = () => {
+    setShowModal(false);
+    isSelectedImage(null);
   };
 
-  loadMoreHandler = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMoreHandler = e => {
+    setPage(page => page + 1);
   };
 
-  render() {
-    const { photos, isLoading, showModal, selectedImage } = this.state;
-    return (
-      <div className="App">
-        <SearchBar onSubmit={this.onSubmit} />
-        <ImageGallery>
-          <ImageGalleryItem photos={photos} onClick={this.onImgClick} />
-        </ImageGallery>
-        {isLoading && <Loader />}
-        {photos.length > 0 && !isLoading && (
-          <Button onClick={this.loadMoreHandler} />
-        )}
-        {showModal && (
-          <Modal image={selectedImage} onClose={this.closeHandler} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <SearchBar onSubmit={onSubmit} />
+      <ImageGallery>
+        <ImageGalleryItem photos={photos} onClick={onImgClick} />
+      </ImageGallery>
+      {isLoading && <Loader />}
+      {photos.length > 0 && !isLoading && <Button onClick={loadMoreHandler} />}
+      {showModal && <Modal image={selectedImage} onClose={closeHandler} />}
+    </div>
+  );
 }
 
 export default App;
