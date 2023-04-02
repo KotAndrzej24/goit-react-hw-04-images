@@ -11,12 +11,14 @@ function Modal({ onClose, image }) {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // componentWillUnmount()
 
   useEffect(() => {
     return window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

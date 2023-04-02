@@ -21,7 +21,7 @@ export function App() {
       setPhotos([]);
     } else {
       fetchImages(value);
-    }
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, page]);
 
   const fetchImages = async () => {
