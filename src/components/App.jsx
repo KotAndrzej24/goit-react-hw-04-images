@@ -50,9 +50,11 @@ export function App() {
   };
 
   const onSubmit = query => {
-    setValue(query);
-    setPhotos([]);
-    setPage(1);
+    if (query !== value) {
+      setPhotos([]);
+      setValue(query);
+      setPage(1);
+    }
   };
 
   const onImgClick = image => {

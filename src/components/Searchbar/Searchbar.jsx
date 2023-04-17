@@ -11,6 +11,7 @@ function SearchBar({ onSubmit }) {
   const changeHandler = e => {
     const targetValue = e.target.value;
     setValue(targetValue);
+    console.log(value);
   };
 
   return (
