@@ -27,7 +27,7 @@ export function App() {
   const fetchImages = async () => {
     setLoading(true);
 
-    const KEY = process.env.KEY;
+    const KEY = '33147490-9fc73efc70912b9906c0b3bde';
     const BASE = 'https://pixabay.com/api/';
     const FILTER = 'image_type=photo&orientation=horizontal&per_page=12';
 
